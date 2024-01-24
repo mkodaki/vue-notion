@@ -45,12 +45,12 @@
         const index = this.noteList.indexOf(deleteNote);
         this.noteList.splice(index, 1);
       },
-      onEditNoteStart : function(editNote) {
+      onEditNoteStart: function(editNote) {
         for (let note of this.noteList) {
           note.editing = (note.id === editNote.id);
         }
       },
-      onEditNoteEnd : function() {
+      onEditNoteEnd: function() {
         for (let note of this.noteList) {
           note.editing = false;
         }
@@ -70,9 +70,10 @@
     width: 350px;
     background-color: #f7f6f3;
   }
-  .right-menu {
+  .right-view {
     flex-glow: 1;
     padding: 10px;
+    width: 100%;
   }
 }
 </style>
