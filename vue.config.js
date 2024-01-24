@@ -3,6 +3,6 @@ module.exports = {
     port: 8081,
     disableHostCheck: true,
     host: 'localhost'
-  }
+  },
 };
 
