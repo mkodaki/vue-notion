@@ -1,6 +1,11 @@
 <template>
   <div class="main-page">
     <div class="left-menu" @click.self="onEditNoteEnd()">
+      <!-- 保存ボタン -->
+      <button class="transparent" @click.self="onClickButtonSave">
+        <i class="fas fa-save"></i> 内容を保存
+      </button>
+
       <!-- ノートリスト -->
       <draggable v-bind:list="noteList" group="notes">
         <NoteItem
@@ -32,15 +37,17 @@
         </div>
         <div class="note-content">
           <h3 class="note-title">{{selectedNote.name}}</h3>
-          <WidgetItem
-            v-for="widget in selectedNote.widgetList"
-            v-bind:widget="widget"
-            v-bind:layer="1"
-            v-bind:key="widget.id"
-            @delete="onDeleteWidget"
-            @addChild="onAddChildWidget"
-            @addWidgetAfter="onAddWidgetAfter"
-          />
+          <draggable v-bind:list="selectedNote.widgetList" group="widgets">
+            <WidgetItem
+              v-for="widget in selectedNote.widgetList"
+              v-bind:widget="widget"
+              v-bind:layer="1"
+              v-bind:key="widget.id"
+              @delete="onDeleteWidget"
+              @addChild="onAddChildWidget"
+              @addWidgetAfter="onAddWidgetAfter"
+            />
+          </draggable>
           <button class="transparent" @click="onClickButtonAddWidget">
             <i class="fas fa-plus-square"></i>ウィジェットを追加
           </button>
@@ -60,6 +67,12 @@
       return {
         noteList: [],
         selectedNote: null,
+      }
+    },
+    created: function() {
+      const localData = localStorage.getItem('noteItem');
+      if (localData != null) {
+        this.noteList = JSON.parse(localData);
       }
     },
     methods: {
@@ -131,7 +144,7 @@
         layer = layer || 1;
         const widget = {
           id: new Date().getTime().toString(16),
-          type: 'heading',
+          type: layer === 1 ? 'heading' : 'body',
           text: '',
           mouseover: false,
           children: [],
@@ -159,6 +172,20 @@
         const targetList = parentWidget == null ? this.selectedNote.widgetList : parentWidget.children;
         const index = targetList.indexOf(widget);
         targetList.splice(index, 1);
+
+        // 削除した1つ前のウィジェットを選択状態にする
+        const focusWidget = (index === 0) ? parentWidget : targetList[index - 1];
+        if (focusWidget != null) {
+          focusWidget.id = (parseInt(focusWidget.id, 16) + 1).toString(16);
+        }
+      },
+      onClickButtonSave: function() {
+        localStorage.setItem('noteItem', JSON.stringify(this.noteList));
+        this.$toasted.show('ノートを保存しました！', {
+          position: 'top-left',
+          duration: 1000,
+          type: 'success'
+        });
       },
     },
     computed: {
